@@ -1,19 +1,19 @@
 $ErrorActionPreference = "Stop"
 
-Write-Host "[1/5] Checking Docker..."
+Write-Host "[1/5] 检查 Docker 环境..."
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-  throw "Docker is not installed."
+  throw "未安装 Docker，请先安装 Docker Desktop。"
 }
 
 try {
   docker info *> $null
 } catch {
-  throw "Docker daemon is not running. Please start Docker Desktop first."
+  throw "Docker 服务未运行，请先启动 Docker Desktop。"
 }
 
-Write-Host "[2/5] Checking AI API key..."
+Write-Host "[2/5] 检查 AI 接口密钥..."
 if (-not (Test-Path ".env")) {
-  throw ".env not found. Please create .env from .env.example."
+  throw "未找到 .env 文件，请先复制 .env.example 并填写配置。"
 }
 
 $envText = Get-Content ".env" -Raw
@@ -21,7 +21,7 @@ $hasArkKey = $envText -match "(?m)^ARK_API_KEY=.+$"
 $hasOpenAIKey = $envText -match "(?m)^OPENAI_API_KEY=.+$"
 $hasDeepSeekKey = $envText -match "(?m)^DEEPSEEK_API_KEY=.+$"
 if (-not $hasArkKey -and -not $hasOpenAIKey -and -not $hasDeepSeekKey) {
-  throw "None of ARK_API_KEY / OPENAI_API_KEY / DEEPSEEK_API_KEY is set in .env."
+  throw ".env 中未配置 ARK_API_KEY / OPENAI_API_KEY / DEEPSEEK_API_KEY，请至少填写一个。"
 }
 
 $mysqlRootPassword = "rootpassword"
@@ -32,11 +32,11 @@ foreach ($line in (Get-Content ".env")) {
   }
 }
 
-Write-Host "[3/5] Building and starting containers..."
+Write-Host "[3/5] 构建并启动容器..."
 docker compose up -d --build
 docker compose restart nginx
 
-Write-Host "[4/6] Repairing MySQL charset and importing demo seed..."
+Write-Host "[4/6] 修复 MySQL 字符集并导入演示数据..."
 for ($i = 1; $i -le 30; $i++) {
   docker compose exec -T -e MYSQL_ROOT_PASSWORD="$mysqlRootPassword" mysql sh -lc 'mysqladmin ping -uroot -p"$MYSQL_ROOT_PASSWORD" --silent' *> $null
   if ($LASTEXITCODE -eq 0) { break }
@@ -53,10 +53,10 @@ try {
   Write-Warning "seed_demo_data.sql 导入失败，继续使用现有演示数据。"
 }
 
-Write-Host "[5/6] Service status:"
+Write-Host "[5/6] 当前服务状态："
 docker compose ps
 
-Write-Host "[6/6] Health checks..."
+Write-Host "[6/6] 健康检查..."
 function Test-UrlWithRetry {
   param(
     [string]$Url,
@@ -75,18 +75,18 @@ function Test-UrlWithRetry {
 }
 
 if (Test-UrlWithRetry -Url "http://localhost/api/ai/health") {
-  Write-Host "AI health check: OK"
+  Write-Host "AI 服务健康检查：通过"
 } else {
-  Write-Warning "AI health check: FAILED"
+  Write-Warning "AI 服务健康检查：失败"
 }
 
 if (Test-UrlWithRetry -Url "http://localhost/api/health") {
-  Write-Host "Backend health check: OK"
+  Write-Host "后端服务健康检查：通过"
 } else {
-  Write-Warning "Backend health check: FAILED"
+  Write-Warning "后端服务健康检查：失败"
 }
 
-Write-Host "Deployment finished."
-Write-Host "Admin Web:   http://localhost/"
-Write-Host "Backend API: http://localhost/api/health"
-Write-Host "AI Service:  http://localhost/api/ai/health"
+Write-Host "部署流程执行完成。"
+Write-Host "前端页面：          http://localhost/"
+Write-Host "后端健康检查：      http://localhost/api/health"
+Write-Host "AI 服务健康检查：   http://localhost/api/ai/health"

@@ -20,12 +20,12 @@ mybatis-plus:
 server:
   port: 8080
 
-# JWT Authentication Configuration
+# JWT 登录认证配置
 jwt:
   secret: ${JWT_SECRET:JiangmaiSecretKey2026!}
   expiration-ms: ${JWT_EXPIRE_MS:86400000}
 
-# DeepSeek Configuration
+# AI 文本模型配置
 ai:
   provider: ${AI_PROVIDER:deepseek}
 

@@ -1,5 +1,28 @@
-# Vue 3 + Vite
+# 匠脉锡雕平台前端
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+这是匠脉锡雕非遗数字平台的前端项目，基于 Vue 3、Vite、Element Plus 开发，主要承担平台首页、课程管理、作品集市、数据看板、个人中心和 AI 服务页面。
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## 页面模块
+
+- 首页：展示锡雕非遗主题、课程入口和作品展示入口。
+- 数据看板：根据用户角色展示运营、课程和学习成果数据。
+- 用户管理：管理员维护平台用户和资料修改申请。
+- 课程管理：讲师上传课程，管理员审核课程，学员购买学习。
+- 作品集市：学员上传作品，管理员审核，用户可收藏、浏览和下单。
+- 个人中心：展示学习记录、作品记录、收藏记录和资料修改申请。
+- AI 服务：提供锡雕问答、学习点评和图片生成入口。
+
+## 本地开发
+
+```bash
+npm install
+npm run dev
+```
+
+## 生产构建
+
+```bash
+npm run build
+```
+
+构建产物会生成到 `dist/` 目录，部署时由 Nginx 托管。
