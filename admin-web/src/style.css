@@ -1,0 +1,113 @@
+:root {
+  color: #303133;
+  background: #f0f2f5;
+  font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-width: 320px;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  html,
+  body,
+  #app {
+    width: 100%;
+  }
+
+  .app-container {
+    padding: 12px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+    overflow-x: auto !important;
+  }
+
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .layout-main {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .el-table {
+    min-width: 760px;
+  }
+
+  .el-table .el-button {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .el-dialog {
+    width: 92vw !important;
+    margin-top: 8vh !important;
+    max-height: 84vh;
+    overflow: hidden;
+  }
+
+  .el-dialog__body {
+    max-height: calc(84vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .el-dialog .el-form {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .el-form-item__content {
+    min-width: 0;
+  }
+
+  .el-table {
+    font-size: 12px;
+  }
+
+  .el-table .cell {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  .el-pagination {
+    justify-content: center !important;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .el-input-number,
+  .el-select {
+    width: 100% !important;
+  }
+
+  .el-upload,
+  .cover-uploader,
+  .image-uploader {
+    max-width: 100%;
+  }
+}

@@ -1,0 +1,111 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: jiangmai-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/html:/usr/share/nginx/html
+    depends_on:
+      - backend
+      - ai-service
+      - admin-web
+    networks:
+      - jiangmai-network
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    container_name: jiangmai-mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: jiangmai_db
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - jiangmai-network
+    restart: always
+
+  redis:
+    image: redis:alpine
+    container_name: jiangmai-redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - ./redis_data:/data
+    networks:
+      - jiangmai-network
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: jiangmai-backend
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/jiangmai_db?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=GMT%2B8
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-rootpassword}
+      - SPRING_REDIS_HOST=redis
+      - JWT_SECRET=${JWT_SECRET:-JiangmaiSecretKey2026!}
+      - JWT_EXPIRE_MS=${JWT_EXPIRE_MS:-86400000}
+      - AI_PROVIDER=${AI_PROVIDER:-deepseek}
+      - ARK_API_KEY=${ARK_API_KEY}
+      - DOUBAO_API_URL=${DOUBAO_API_URL:-https://ark.cn-beijing.volces.com/api/v3/chat/completions}
+      - DOUBAO_MODEL=${DOUBAO_MODEL:-doubao-seed-1-6-250615}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_URL=${OPENAI_API_URL:-https://api.openai.com/v1/chat/completions}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_API_URL=${DEEPSEEK_API_URL:-https://api.deepseek.com/v1/chat/completions}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - jiangmai-network
+    restart: always
+
+  admin-web:
+    build: ./admin-web
+    container_name: jiangmai-admin-web
+    ports:
+      - "127.0.0.1:8081:80"
+    networks:
+      - jiangmai-network
+    restart: always
+
+  ai-service:
+    build: ./ai-service
+    container_name: jiangmai-ai-service
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - AI_PROVIDER=${AI_PROVIDER:-deepseek}
+      - ARK_API_KEY=${ARK_API_KEY}
+      - DOUBAO_API_URL=${DOUBAO_API_URL:-https://ark.cn-beijing.volces.com/api/v3/chat/completions}
+      - DOUBAO_MODEL=${DOUBAO_MODEL:-doubao-seed-1-6-250615}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_URL=${OPENAI_API_URL:-https://api.openai.com/v1/chat/completions}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - IMAGE_PROVIDER=${IMAGE_PROVIDER:-auto}
+      - OPENAI_IMAGE_API_URL=${OPENAI_IMAGE_API_URL:-https://api.openai.com/v1/images/generations}
+      - OPENAI_IMAGE_MODEL=${OPENAI_IMAGE_MODEL:-gpt-image-1}
+      - POLLINATIONS_IMAGE_BASE_URL=${POLLINATIONS_IMAGE_BASE_URL:-https://image.pollinations.ai/prompt}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_API_URL=${DEEPSEEK_API_URL:-https://api.deepseek.com/v1/chat/completions}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+    networks:
+      - jiangmai-network
+    restart: always
+
+networks:
+  jiangmai-network:
+    driver: bridge
